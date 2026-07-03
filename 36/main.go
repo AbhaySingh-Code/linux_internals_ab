@@ -62,6 +62,25 @@ func main(){
 		fmt.Printf("[+] Raw memory string data (ASCII Representation): %q\n", string(outBuffer))
 	}
 
+	//3. Read register values with syscall.PtraceRegs
+	var regs syscall.PtraceRegs
+	
+	err = syscall.PtraceGetRegs(pid, &regs)
+	if err != nil {
+		log.Fatalf("failed to get regs : %v", err)
+	}
+	
+	fmt.Printf("\n ----- [CPU Register Inspection] -----\n")
+	// RIP points to the memory address of the next CPU instruction to execute
+	fmt.Printf("[+] RIP (Instruction pointer) : 0x%x\n", regs.Rip)
+
+	// RSP points to the top of the current stack frame
+	fmt.Printf("[+] RSP (Stack Pointer) : 0x%x\n", regs.Rsp)
+
+	//RAX often holds syscall numbers or function return values
+	fmt.Printf("[+] RAX (Accumulater Register) : 0x%x\n", regs.Rax)
+	fmt.Printf("--------------------------\n")
+
 	//Clean and detach to return control fully back to the system
 	err = syscall.PtraceDetach(pid)
 	if err != nil {
