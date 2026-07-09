@@ -1,4 +1,4 @@
-# Linux Fileless Execution & eBPF Monitoring Lab
+# Linux Fileless Execution
 
 This repository contains a proof-of-concept (PoC) laboratory demonstrating **Fileless Execution** techniques on Linux via RAM-backed file descriptors (`memfd_create`).
 
